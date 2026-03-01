@@ -1,16 +1,16 @@
 {
   "frontend/entrypoints/main.css": {
-    "file": "main-TEjufUpF.css",
+    "file": "main-Cu3edQR4.css",
     "src": "frontend/entrypoints/main.css",
     "isEntry": true
   },
   "frontend/entrypoints/main.js": {
-    "file": "main-uUv1JY9u.js",
+    "file": "main-Ct4yxole.js",
     "name": "main",
     "src": "frontend/entrypoints/main.js",
     "isEntry": true,
     "css": [
-      "main-TEjufUpF.css"
+      "main-Cu3edQR4.css"
     ]
   }
 }

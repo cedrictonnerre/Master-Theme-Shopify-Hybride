@@ -6,10 +6,12 @@
  */
 
 import Alpine from 'alpinejs';
+import collapse from '@alpinejs/collapse';
 import intersect from '@alpinejs/intersect';
 import './main.css';
 
 // ─── Alpine Plugins ───────────────────────────────────────────────────────────
+Alpine.plugin(collapse);
 Alpine.plugin(intersect);
 
 // ─── Store: Cart ──────────────────────────────────────────────────────────────
@@ -243,11 +245,22 @@ Alpine.data('accordion', () => ({
 // ─── Alpine component: Sticky ATC ─────────────────────────────────────────────
 // Observes #main-atc-btn via IntersectionObserver. Shows the sticky bar
 // when the main button scrolls out of view on product pages.
+// Initial values are bootstrapped from SSR data-* attributes on the wrapper.
 Alpine.data('stickyAtc', () => ({
   visible: false,
-  variant: null,
+  price: '',
+  loading: false,
+  variantId: null,
+  available: true,
 
   init() {
+    // Bootstrap initial values from SSR data-* attributes (no network request needed)
+    this.price = this.$el.dataset.initialPrice || '';
+    this.variantId = this.$el.dataset.variantId
+      ? parseInt(this.$el.dataset.variantId, 10)
+      : null;
+    this.available = this.$el.dataset.available !== 'false';
+
     const sentinel = document.getElementById('main-atc-btn');
     if (!sentinel) return;
 
@@ -259,19 +272,27 @@ Alpine.data('stickyAtc', () => ({
     );
     observer.observe(sentinel);
 
-    // Keep variant in sync with the variant picker
+    // React to variant changes dispatched by variantPicker component
     document.addEventListener('variant:change', (e) => {
-      this.variant = e.detail.variant;
+      const variant = e.detail?.variant;
+      if (!variant) return;
+      this.available = variant.available;
+      this.variantId = variant.id;
+      this.price = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: window.Shopify?.currency?.active || 'EUR',
+      }).format(variant.price / 100);
     });
   },
 
-  get available() {
-    return this.variant ? this.variant.available : true;
-  },
-
   async addToCart() {
-    if (!this.available || !this.variant) return;
-    await Alpine.store('cart').add(this.variant.id, 1);
+    if (!this.available || !this.variantId) return;
+    this.loading = true;
+    try {
+      await Alpine.store('cart').add(this.variantId, 1);
+    } finally {
+      this.loading = false;
+    }
   },
 }));
 

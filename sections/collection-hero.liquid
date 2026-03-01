@@ -1,15 +1,108 @@
-{% comment %} collection-hero.liquid — Phase 1.2 {% endcomment %}
-<div class="section-container py-10">
-  <h1 class="font-heading text-3xl font-bold text-text">{{ collection.title }}</h1>
-  {%- if collection.description != blank -%}
-    <p class="text-text-light mt-2">{{ collection.description }}</p>
+{% comment %}
+  collection-hero.liquid
+  Hero section for collection pages with optional background image and overlay.
+  Follows the hero-landing.liquid pattern adapted for catalogue mode:
+  - Reduced height: min-h-[30vh] md:min-h-[45vh]
+  - No CTA buttons — title + description only
+  - Image: fetchpriority="high" + loading="eager" for LCP
+{% endcomment %}
+
+{%- assign hero_image = section.settings.hero_image -%}
+{%- assign bg_color = section.settings.background_color | default: '#f8f7f4' -%}
+{%- assign has_image = false -%}
+{%- if hero_image != blank -%}
+  {%- assign has_image = true -%}
+{%- endif -%}
+
+<section
+  class="relative flex items-center min-h-[30vh] md:min-h-[45vh] overflow-hidden"
+  style="background-color: {{ bg_color }};"
+>
+  {%- if has_image -%}
+    <!-- Background image (LCP candidate — eager + high priority) -->
+    <picture>
+      <source
+        media="(min-width: 768px)"
+        srcset="{{ hero_image | image_url: width: 1600 }} 1600w,
+                {{ hero_image | image_url: width: 1200 }} 1200w"
+        sizes="100vw"
+      >
+      <img
+        src="{{ hero_image | image_url: width: 800 }}"
+        srcset="{{ hero_image | image_url: width: 600 }} 600w,
+                {{ hero_image | image_url: width: 800 }} 800w"
+        sizes="100vw"
+        alt="{{ hero_image.alt | default: collection.title | escape }}"
+        class="absolute inset-0 w-full h-full object-cover"
+        fetchpriority="high"
+        loading="eager"
+        width="{{ hero_image.width }}"
+        height="{{ hero_image.height }}"
+      >
+    </picture>
+
+    {%- if section.settings.show_overlay -%}
+      <div
+        class="absolute inset-0"
+        style="background-color: {{ section.settings.overlay_color }}; opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
+        aria-hidden="true"
+      ></div>
+    {%- endif -%}
   {%- endif -%}
-</div>
+
+  <!-- Content -->
+  <div class="relative z-10 section-container py-12 md:py-16">
+    <h1 class="font-heading text-3xl md:text-5xl font-bold leading-tight
+               {%- if has_image %} text-white{%- else %} text-text{%- endif %}">
+      {{ collection.title }}
+    </h1>
+
+    {%- if collection.description != blank -%}
+      <p class="mt-3 text-base md:text-lg max-w-2xl
+                {%- if has_image %} text-white/80{%- else %} text-text-light{%- endif %}">
+        {{ collection.description }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
 
 {% schema %}
 {
   "name": "Hero Collection",
   "tag": "section",
-  "settings": []
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Image de fond"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Couleur de fond",
+      "default": "#f8f7f4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Afficher l'overlay",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Couleur de l'overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacité de l'overlay (%)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 40
+    }
+  ]
 }
 {% endschema %}

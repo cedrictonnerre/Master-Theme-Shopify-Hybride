@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@alpinejs/collapse": "^3.14.8",
     "@alpinejs/intersect": "^3.14.8",
     "alpinejs": "^3.14.8"
   },

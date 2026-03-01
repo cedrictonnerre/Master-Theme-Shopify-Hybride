@@ -1,15 +1,20 @@
 {% comment %}
   sticky-atc.liquid
   Mobile-only sticky "Add to Cart" bar that appears when the main ATC button
-  scrolls out of the viewport. Uses Alpine x-intersect via main ATC button ID.
+  scrolls out of the viewport. Uses Alpine.data('stickyAtc') registered in main.js.
+  SSR initial values are passed via data-* attributes — no inline script needed.
   Only rendered on product pages (see layout/theme.liquid condition).
 {% endcomment %}
 
 {%- if product -%}
+  {%- assign current_variant = product.selected_or_first_available_variant -%}
+
   <div
-    x-data="stickyAtc()"
-    x-init="init()"
+    x-data="stickyAtc"
     x-cloak
+    data-initial-price="{{ current_variant.price | money }}"
+    data-variant-id="{{ current_variant.id }}"
+    data-available="{{ current_variant.available }}"
   >
     <div
       x-show="visible"
@@ -29,7 +34,7 @@
           <p
             class="text-accent font-semibold text-sm"
             x-text="price"
-          >{{ product.selected_or_first_available_variant.price | money }}</p>
+          >{{ current_variant.price | money }}</p>
         </div>
 
         <!-- ATC button -->
@@ -53,51 +58,6 @@
       </div>
     </div>
   </div>
-
-  <script>
-    function stickyAtc() {
-      return {
-        visible: false,
-        available: {{ product.selected_or_first_available_variant.available | json }},
-        variantId: {{ product.selected_or_first_available_variant.id | json }},
-        price: {{ product.selected_or_first_available_variant.price | money | json }},
-        loading: false,
-
-        init() {
-          // Observe main ATC button — sticky bar shows when it leaves viewport
-          const mainAtcBtn = document.getElementById('main-atc-btn');
-          if (!mainAtcBtn) return;
-
-          const observer = new IntersectionObserver(
-            ([entry]) => {
-              this.visible = !entry.isIntersecting;
-            },
-            { threshold: 0, rootMargin: '0px 0px 0px 0px' }
-          );
-          observer.observe(mainAtcBtn);
-
-          // React to variant changes dispatched by variantPicker component
-          document.addEventListener('variant:change', (e) => {
-            const variant = e.detail?.variant;
-            if (!variant) return;
-            this.available = variant.available;
-            this.variantId = variant.id;
-            this.price = new Intl.NumberFormat('fr-FR', {
-              style: 'currency',
-              currency: window.Shopify?.currency?.active || 'EUR',
-            }).format(variant.price / 100);
-          });
-        },
-
-        async addToCart() {
-          if (!this.available || !this.variantId) return;
-          this.loading = true;
-          await Alpine.store('cart').add(this.variantId, 1);
-          this.loading = false;
-        },
-      };
-    }
-  </script>
 {%- endif -%}
 
 {% schema %}

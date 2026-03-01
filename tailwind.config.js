@@ -12,6 +12,12 @@ export default {
     'x-cloak',
     { pattern: /^(translate|opacity|scale)-/ },
     { pattern: /^(max-w)-(xl|2xl|3xl)$/ },
+    // Dynamic grid columns from collection-grid.liquid settings
+    'grid-cols-1',
+    'grid-cols-2',
+    'md:grid-cols-2',
+    'md:grid-cols-3',
+    'md:grid-cols-4',
   ],
   theme: {
     extend: {

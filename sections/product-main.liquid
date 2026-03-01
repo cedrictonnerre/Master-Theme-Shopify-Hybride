@@ -73,7 +73,11 @@
         </h1>
 
         <!-- Price block -->
-        {%- render 'product-price', variant: current_variant -%}
+        <!-- SSR price: visible before Alpine hydration, hidden after -->
+        <div x-show="!selectedVariant">
+          {%- render 'product-price', variant: current_variant -%}
+        </div>
+        <!-- Alpine price: hidden before init via x-cloak, shown after hydration -->
         <div x-show="selectedVariant" x-cloak>
           <p
             class="font-semibold text-2xl text-accent"
