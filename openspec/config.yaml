@@ -1,0 +1,118 @@
+schema: spec-driven
+
+# Project context — Master Theme Shopify Hybride V1
+# Shown to AI when creating proposals, designs, and tasks.
+context: |
+  ## Projet
+  Thème Shopify "reproductible" pouvant basculer entre deux modes sans toucher au code :
+  - **landing** : mono-produit, optimisé campagnes TikTok/Meta Ads (hero + product main)
+  - **catalogue** : multi-produits, gamme de niche (collection grid)
+  Le basculement s'effectue via `settings.shop_mode` dans le Theme Editor natif Shopify.
+  Objectif : rebranding complet (couleurs, typo, mode) en < 10 min via le Theme Editor.
+
+  ## Stack technique
+  - **Rendu** : Shopify Liquid 2.x (Sections Everywhere + JSON templates OS 2.0)
+  - **Thème base** : Dawn 14+ dégraissé (~70 % des CSS inutiles supprimés)
+  - **JavaScript** : Alpine.js 3.x (~15 Ko gzip) + `@alpinejs/intersect`
+  - **CSS** : Tailwind CSS 3.x via PurgeCSS → 8–15 Ko final
+  - **Build** : Vite 5.x + `vite-plugin-shopify` (HMR, tree-shaking, ES modules)
+  - **CLI** : Shopify CLI 3.x (`theme dev` + `theme push`)
+  - **Hébergement** : Shopify CDN (inclus, 0 €/mois)
+  - **Versioning** : Git + GitHub
+
+  ## Architecture Alpine.js
+  ### Stores globaux (frontend/entrypoints/main.js)
+  - `Alpine.store('cart')` : état panier AJAX — open, items, itemCount, total, loading,
+    isEmpty (getter), init(), fetch(), add(variantId, qty, props), update(key, qty), remove(key), formattedTotal()
+  - `Alpine.store('ui')` : mobileMenuOpen, searchOpen, toggleMobileMenu(), closeMobileMenu()
+
+  ### Composants Alpine
+  - `variantPicker(productJson)` : sélection variante, prix, comparePrice, savingsPercent, available,
+    selectOption(), updateVariant(), isOptionAvailable(), addToCart()
+    → dispatche `CustomEvent('variant:change', { detail: { variant } })`
+  - `accordion()` : un seul item ouvert à la fois (FAQ, description produit)
+  - `stickyAtc()` : IntersectionObserver sur `id="main-atc-btn"`, écoute `variant:change`
+
+  ## Design Tokens — Flux complet
+  1. Theme Editor Shopify (settings_schema.json)
+  2. `snippets/css-variables.liquid` → CSS custom properties sur `:root`
+     (`--color-accent`, `--font-heading`, `--border-radius`, `--page-width`, etc.)
+  3. `tailwind.config.js` mappe ces props aux utilitaires Tailwind
+     (`bg-accent`, `text-text-light`, `rounded-theme`, `max-w-page`, etc.)
+  Les fichiers .liquid utilisent UNIQUEMENT les classes Tailwind mappées, jamais de valeurs en dur.
+
+  ## Settings exposés dans le Theme Editor
+  - **Mode boutique** : `shop_mode` (landing | catalogue)
+  - **Couleurs** : color_background, color_background_secondary, color_text, color_text_light,
+    color_accent, color_accent_hover, color_border
+  - **Typographie** : font_heading (font_picker), font_body (font_picker), font_size_base
+  - **Mise en page** : page_width (1200/1400/1600px), border_radius (0–20px), spacing_base (8–24px)
+  - **Performance** : lazy_load_images (bool), enable_animations (bool)
+  - **Favicon** : favicon (image_picker)
+
+  ## API Shopify AJAX (cart)
+  - `GET /cart.js` → lire l'état du panier
+  - `POST /cart/add.js` → `{ id: variantId, quantity: n, properties: {} }`
+  - `POST /cart/change.js` → `{ id: lineItemKey, quantity: n }` (qty=0 = supprimer)
+
+  ## Conventions de code
+  - `main.js` chargé avec `type="module" defer` → non bloquant
+  - `[x-cloak]` sur tous les éléments Alpine → zéro flash de contenu non stylé
+  - Images LCP (hero, produit principal) : `fetchpriority="high"` + `loading="eager"`
+  - Images below-the-fold : `loading="lazy"` + `aspect-ratio` CSS (anti-CLS)
+  - Hero responsive : `<picture>` + `srcset` + `sizes="100vw"`
+  - Communication inter-composants via CustomEvent DOM (pas de couplage direct)
+  - Toutes les requêtes cart : `async/await` + flag `loading` (évite les doubles soumissions)
+  - Safelist Tailwind : classes dynamiques Alpine/Liquid protégées de la purge
+
+  ## Structure des fichiers clés
+  - `frontend/entrypoints/main.js` — Alpine init + stores + composants
+  - `frontend/entrypoints/main.css` — @tailwind base/components/utilities
+  - `config/settings_schema.json` — interface Theme Editor
+  - `snippets/css-variables.liquid` — bridge settings → CSS props
+  - `snippets/vite-tag.liquid` — auto-généré par vite-plugin-shopify (ignoré en git)
+  - `layout/theme.liquid` — layout global (head, body, sections fixes)
+  - `sections/cart-drawer.liquid` — panier latéral (Alpine.store('cart'))
+  - `sections/sticky-atc.liquid` — Sticky ATC mobile
+  - `sections/product-main.liquid` — page produit (variantPicker)
+  - `sections/hero-landing.liquid` — hero mode landing page
+
+  ## Critères de validation MVP
+  - PageSpeed Mobile > 90, Desktop > 95
+  - LCP < 2.5 s, CLS < 0.1
+  - Bundle CSS < 15 Ko gzip, Bundle JS < 25 Ko gzip
+  - Drawer Cart : AJAX sans rechargement de page
+  - Sticky ATC : visible au scroll hors du bouton ATC principal
+  - Swatches : prix/image/stock synchronisés à la sélection
+  - Rebranding complet < 10 min via Theme Editor
+
+  ## Phases du projet
+  - **Phase 1.1** (Complétée) : Fondations, Design System, workflow
+  - **Phase 1.2** (Complétée) : Architecture de vente — Drawer Cart, Sticky ATC, Swatches, Variant Picker
+  - **Phase 1.3** (En cours) : SAV natif — FAQ, Formulaire contact, Politiques, Emailing
+  - **Phase 2** : Live Crash Test — liaison fournisseur DSers/Zendrop, test bout-en-bout
+  - **Phase 3** : Scale — micro-interactions CSS luxe, upsells natifs, analytics CAPI
+
+  ## Anti-patterns à éviter
+  - Ne jamais utiliser de valeurs CSS en dur dans les fichiers .liquid (toujours les classes Tailwind mappées)
+  - Éviter les éléments natifs Shopify trop reconnaissables (anti-dropshipping)
+  - Pas de layout shift au chargement (aspect-ratio sur tous les conteneurs images)
+  - Pas d'apps tierces pour les fonctionnalités codables nativement
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Toujours inclure l'impact sur les Core Web Vitals (LCP, CLS) si la feature touche au rendu
+    - Indiquer si la feature nécessite une nouvelle section Liquid ou s'intègre dans l'existant
+    - Préciser le mode boutique concerné (landing, catalogue, ou les deux)
+    - Inclure une section "Non-goals" pour délimiter le scope
+  design:
+    - Respecter le Design Token Flow (settings_schema → css-variables → Tailwind)
+    - Ne jamais proposer de valeurs CSS en dur, toujours via CSS custom properties
+    - Mobile-first obligatoire — décrire d'abord le comportement mobile
+    - Indiquer les classes Tailwind utilisées (bg-accent, text-text-light, rounded-theme, etc.)
+  tasks:
+    - Décomposer par fichier touché (ex : "Créer sections/faq.liquid", "Mettre à jour templates/page.faq.json")
+    - Chaque tâche doit être testable indépendamment
+    - Indiquer les dépendances entre tâches (Alpine store, snippets partagés)
+    - Limiter chaque tâche à une portée claire et délimitée

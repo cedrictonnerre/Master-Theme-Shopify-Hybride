@@ -114,3 +114,91 @@ Contrôlé via `settings_schema.json` → `settings.shop_mode`:
 | Sticky ATC | Visible au scroll mobile |
 | Swatches | Prix/image/stock sync |
 | Rebranding | < 10 min via Theme Editor |
+
+---
+
+## Aperçu de l'objectif du projet
+
+Créer un thème Shopify "reproductible" et "ultra-performant" capable de basculer entre :
+- **Mode Landing Page** (mono-produit) — optimisé pour les campagnes TikTok/Meta Ads avec un tunnel d'achat direct
+- **Mode Catalogue** (multi-produits) — pour une gamme de niche avec une grille de collection
+
+L'objectif final est de livrer un Master Theme relivrable sous différentes marques sans intervention de code post-livraison, grâce au système de design tokens piloté par le Theme Editor Shopify.
+
+---
+
+## Aperçu de l'architecture globale
+
+```
+Theme Editor (marchand)
+  ↓ settings_schema.json
+snippets/css-variables.liquid  → CSS custom properties (:root)
+  ↓
+tailwind.config.js             → utilitaires Tailwind mappés
+  ↓
+*.liquid (sections/snippets)   → rendu Shopify SSR
+
+frontend/entrypoints/main.js   → Alpine.js (stores + composants)
+  ↓ Vite build
+assets/main.js + assets/main.css → Shopify CDN
+```
+
+Deux modes coexistent dans un seul thème, basculés via `settings.shop_mode` :
+- `"landing"` → `hero-landing.liquid` + `product-main.liquid`
+- `"catalogue"` → `collection-hero.liquid` + `collection-grid.liquid`
+
+---
+
+## Style visuel
+
+- Interface **claire et minimaliste** — pas de mode sombre pour le MVP
+- Esthétique "Marque Premium" pour se démarquer du dropshipping classique
+- Toutes les valeurs de design (couleurs, typo, espacements, border-radius) passent par les CSS custom properties — jamais de valeurs en dur dans les fichiers `.liquid`
+
+---
+
+## Contraintes et Politiques
+
+- **NE JAMAIS exposer les clés API au client** — toute clé sensible (Shopify, Meta, TikTok CAPI, etc.) doit rester côté serveur ou dans les variables d'environnement (`.env`, non commité)
+- Ne pas contourner les hooks git (`--no-verify`) sauf demande explicite
+- Ne pas committer `settings.local.json`, `.env`, `node_modules/`, `snippets/vite-tag.liquid` (mode dev)
+
+---
+
+## Dépendances
+
+- **Préférer les composants existants** plutôt que d'ajouter de nouvelles bibliothèques UI
+- Stack figée : Alpine.js 3.x + Tailwind CSS 3.x + Vite 5.x — ne pas introduire React, Vue, ou d'autres frameworks JS sans validation explicite
+- Toute nouvelle dépendance doit justifier son apport vs l'impact sur le bundle (cible JS < 25 Ko gzip)
+
+---
+
+## Tests interface graphique
+
+À la fin de chaque développement impliquant l'interface graphique, utiliser le skill `playwright-skill` pour valider :
+- L'interface est **responsive** (mobile + desktop)
+- L'interface est **fonctionnelle** (interactions Alpine, cart, variantes)
+- L'interface **répond au besoin développé**
+
+---
+
+## Documentation
+
+- **PRD** (Product Requirements Document) : [`PRD.md`](./PRD.md)
+- **Architecture** (décisions techniques détaillées) : [`ARCHITECTURE.md`](./ARCHITECTURE.md)
+
+---
+
+## Context7
+
+Utiliser **automatiquement** les outils MCP Context7 (`resolve-library-id` puis `get-library-docs`) dans les cas suivants, sans attendre de demande explicite :
+- Génération de code impliquant une bibliothèque (Alpine.js, Tailwind, Vite, Shopify Liquid, etc.)
+- Étapes de configuration ou d'installation d'un outil
+- Consultation de documentation d'une bibliothèque ou d'une API
+
+---
+
+## Langue des spécifications
+
+- Toutes les spécifications sont rédigées **en français** (descriptions, scénarios, sections Purpose dans les OpenSpec)
+- Seuls les **titres de Requirements** restent en anglais avec les mots-clés `SHALL` / `MUST` pour la validation OpenSpec
