@@ -22,3 +22,5 @@ dist/
 snippets/vite-tag.liquid
 
 # .claude/ est INCLUS intentionnellement (config Claude Code partagée avec l'équipe)
+# Sauf le fichier local qui contient des settings personnels
+.claude/settings.local.json
