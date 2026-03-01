@@ -1,0 +1,367 @@
+{%- liquid
+  assign hero_image = section.settings.hero_image
+  assign hero_image_mobile = section.settings.hero_image_mobile | default: hero_image
+  assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+  assign has_image = hero_image != blank
+  assign on_dark = has_image | default: false
+  if section.settings.show_overlay == false
+    assign on_dark = false
+  endif
+-%}
+
+<section
+  class="relative w-full overflow-hidden flex items-center {% if section.settings.full_height %}min-h-screen{% else %}min-h-[60vh]{% endif %}"
+  style="background-color: {{ section.settings.background_color }};"
+>
+
+  <!-- Background image with anti-CLS aspect ratio -->
+  {%- if has_image -%}
+    <picture>
+      {%- if hero_image_mobile != blank -%}
+        <source
+          media="(max-width: 767px)"
+          srcset="{{ hero_image_mobile | image_url: width: 768 }} 768w, {{ hero_image_mobile | image_url: width: 1080 }} 1080w"
+          width="{{ hero_image_mobile.width }}"
+          height="{{ hero_image_mobile.height }}"
+        >
+      {%- endif -%}
+      <img
+        src="{{ hero_image | image_url: width: 1920 }}"
+        srcset="
+          {{ hero_image | image_url: width: 768 }} 768w,
+          {{ hero_image | image_url: width: 1200 }} 1200w,
+          {{ hero_image | image_url: width: 1920 }} 1920w
+        "
+        sizes="100vw"
+        alt="{{ hero_image.alt | escape | default: shop.name }}"
+        class="absolute inset-0 w-full h-full object-cover"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
+        width="{{ hero_image.width }}"
+        height="{{ hero_image.height }}"
+      >
+    </picture>
+
+    <!-- Darkening overlay -->
+    {%- if section.settings.show_overlay -%}
+      <div
+        class="absolute inset-0"
+        style="background-color: {{ section.settings.overlay_color }}; opacity: {{ overlay_opacity }};"
+        aria-hidden="true"
+      ></div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <!-- Content -->
+  <div class="relative z-10 w-full section-container py-16 md:py-24">
+    <div class="
+      max-w-{{ section.settings.content_width }}
+      {%- if section.settings.content_alignment == 'center' %} mx-auto text-center
+      {%- elsif section.settings.content_alignment == 'right' %} ml-auto text-right
+      {%- endif %}
+    ">
+
+      <!-- Badge / eyebrow label -->
+      {%- if section.settings.badge_text != blank -%}
+        <span class="badge mb-5 inline-block {% if on_dark %}text-white/80 border-white/40{% else %}text-text-light{% endif %}">
+          {{ section.settings.badge_text }}
+        </span>
+      {%- endif -%}
+
+      <!-- Main heading (H1 — LCP candidate) -->
+      {%- if section.settings.heading != blank -%}
+        <h1 class="
+          font-heading font-bold leading-tight mb-5
+          {% case section.settings.heading_size %}
+            {% when 'small' %}text-3xl md:text-4xl
+            {% when 'large' %}text-5xl md:text-7xl lg:text-8xl
+            {% else %}text-4xl md:text-6xl
+          {% endcase %}
+          {% if on_dark %}text-white{% else %}text-text{% endif %}
+        ">
+          {{ section.settings.heading }}
+        </h1>
+      {%- endif -%}
+
+      <!-- Subheading -->
+      {%- if section.settings.subheading != blank -%}
+        <p class="
+          text-lg md:text-xl mb-8 max-w-2xl
+          {%- if section.settings.content_alignment == 'center' %} mx-auto{%- endif %}
+          {% if on_dark %}text-white/80{% else %}text-text-light{% endif %}
+        ">
+          {{ section.settings.subheading }}
+        </p>
+      {%- endif -%}
+
+      <!-- CTA Buttons -->
+      {%- if section.settings.button_primary_label != blank or section.settings.button_secondary_label != blank -%}
+        <div class="
+          flex flex-col sm:flex-row gap-4
+          {% if section.settings.content_alignment == 'center' %}justify-center{% elsif section.settings.content_alignment == 'right' %}justify-end{% endif %}
+        ">
+          {%- if section.settings.button_primary_label != blank -%}
+            <a
+              href="{{ section.settings.button_primary_url | default: '#' }}"
+              class="btn-primary"
+            >
+              {{ section.settings.button_primary_label }}
+            </a>
+          {%- endif -%}
+
+          {%- if section.settings.button_secondary_label != blank -%}
+            <a
+              href="{{ section.settings.button_secondary_url | default: '#' }}"
+              class="{% if on_dark %}btn-ghost{% else %}btn-secondary{% endif %}"
+            >
+              {{ section.settings.button_secondary_label }}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <!-- Trust badges -->
+      {%- if section.settings.show_trust_badges -%}
+        <div class="
+          flex flex-wrap gap-5 mt-10
+          {% if section.settings.content_alignment == 'center' %}justify-center{% elsif section.settings.content_alignment == 'right' %}justify-end{% endif %}
+        ">
+          {%- for i in (1..3) -%}
+            {%- assign badge_icon = 'badge_' | append: i | append: '_icon' -%}
+            {%- assign badge_text_key = 'badge_' | append: i | append: '_text' -%}
+            {%- if section.settings[badge_text_key] != blank -%}
+              <div class="flex items-center gap-2 text-sm {% if on_dark %}text-white/80{% else %}text-text-light{% endif %}">
+                {%- case section.settings[badge_icon] -%}
+                  {%- when 'shield' -%}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  {%- when 'truck' -%}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
+                  {%- when 'refresh' -%}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                  {%- else -%}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                {%- endcase -%}
+                <span>{{ section.settings[badge_text_key] }}</span>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "Hero Landing Page",
+  "tag": "section",
+  "class": "section-hero-landing",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Contenu"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge / Eyebrow label",
+      "placeholder": "Nouveauté · Édition Limitée"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Titre principal (H1)",
+      "default": "Votre produit unique"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Taille du titre",
+      "options": [
+        { "value": "small", "label": "Petit" },
+        { "value": "medium", "label": "Moyen" },
+        { "value": "large", "label": "Grand" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Sous-titre",
+      "default": "Découvrez ce qui vous rend unique. Qualité premium, livraison rapide."
+    },
+    {
+      "type": "header",
+      "content": "Boutons"
+    },
+    {
+      "type": "text",
+      "id": "button_primary_label",
+      "label": "Bouton principal — Label",
+      "default": "Acheter maintenant"
+    },
+    {
+      "type": "url",
+      "id": "button_primary_url",
+      "label": "Bouton principal — Lien"
+    },
+    {
+      "type": "text",
+      "id": "button_secondary_label",
+      "label": "Bouton secondaire — Label"
+    },
+    {
+      "type": "url",
+      "id": "button_secondary_url",
+      "label": "Bouton secondaire — Lien"
+    },
+    {
+      "type": "header",
+      "content": "Image de fond"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Image (desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image_mobile",
+      "label": "Image (mobile — optionnel)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Couleur de fond (sans image)",
+      "default": "#f8f7f4"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Overlay sur l'image",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Couleur de l'overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacité de l'overlay",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Mise en page"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_height",
+      "label": "Hauteur plein écran",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Alignement du contenu",
+      "options": [
+        { "value": "left", "label": "Gauche" },
+        { "value": "center", "label": "Centre" },
+        { "value": "right", "label": "Droite" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Largeur max du bloc contenu",
+      "options": [
+        { "value": "xl", "label": "Normale (xl)" },
+        { "value": "2xl", "label": "Large (2xl)" },
+        { "value": "3xl", "label": "Très large (3xl)" }
+      ],
+      "default": "2xl"
+    },
+    {
+      "type": "header",
+      "content": "Badges de confiance"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Afficher les badges",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "badge_1_icon",
+      "label": "Badge 1 — Icône",
+      "options": [
+        { "value": "shield", "label": "Bouclier" },
+        { "value": "truck", "label": "Livraison" },
+        { "value": "refresh", "label": "Retour" },
+        { "value": "check", "label": "Coche" }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "text",
+      "id": "badge_1_text",
+      "label": "Badge 1 — Texte",
+      "default": "Paiement sécurisé"
+    },
+    {
+      "type": "select",
+      "id": "badge_2_icon",
+      "label": "Badge 2 — Icône",
+      "options": [
+        { "value": "shield", "label": "Bouclier" },
+        { "value": "truck", "label": "Livraison" },
+        { "value": "refresh", "label": "Retour" },
+        { "value": "check", "label": "Coche" }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "text",
+      "id": "badge_2_text",
+      "label": "Badge 2 — Texte",
+      "default": "Livraison offerte dès 50€"
+    },
+    {
+      "type": "select",
+      "id": "badge_3_icon",
+      "label": "Badge 3 — Icône",
+      "options": [
+        { "value": "shield", "label": "Bouclier" },
+        { "value": "truck", "label": "Livraison" },
+        { "value": "refresh", "label": "Retour" },
+        { "value": "check", "label": "Coche" }
+      ],
+      "default": "refresh"
+    },
+    {
+      "type": "text",
+      "id": "badge_3_text",
+      "label": "Badge 3 — Texte",
+      "default": "Retours gratuits 30 jours"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Landing Page"
+    }
+  ]
+}
+{% endschema %}

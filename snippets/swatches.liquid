@@ -1,0 +1,63 @@
+{% comment %}
+  swatches.liquid
+  Renders colour swatches for a product option.
+  Uses x-model on the parent variantPicker component.
+
+  Usage:
+    {%- render 'swatches', option: option, product: product -%}
+{% endcomment %}
+
+<div class="flex flex-wrap gap-2" role="group" :aria-label="'{{ option.name }}'">
+  {%- for value in option.values -%}
+    {%- assign swatch_color = value | handle -%}
+    {%- comment -%} Map common colour names to CSS colours {%- endcomment -%}
+    {%- assign css_color = '' -%}
+    {%- case swatch_color -%}
+      {%- when 'blanc', 'white' -%}      {%- assign css_color = '#ffffff' -%}
+      {%- when 'noir', 'black' -%}       {%- assign css_color = '#000000' -%}
+      {%- when 'rouge', 'red' -%}        {%- assign css_color = '#ef4444' -%}
+      {%- when 'bleu', 'blue', 'navy' -%}{%- assign css_color = '#3b82f6' -%}
+      {%- when 'vert', 'green' -%}       {%- assign css_color = '#22c55e' -%}
+      {%- when 'jaune', 'yellow' -%}     {%- assign css_color = '#eab308' -%}
+      {%- when 'rose', 'pink' -%}        {%- assign css_color = '#ec4899' -%}
+      {%- when 'violet', 'purple' -%}    {%- assign css_color = '#a855f7' -%}
+      {%- when 'orange' -%}              {%- assign css_color = '#f97316' -%}
+      {%- when 'gris', 'grey', 'gray' -%}{%- assign css_color = '#9ca3af' -%}
+      {%- when 'beige', 'creme', 'cream' -%}{%- assign css_color = '#f5f0e8' -%}
+      {%- when 'marron', 'brown' -%}     {%- assign css_color = '#92400e' -%}
+      {%- when 'camel' -%}               {%- assign css_color = '#c19a6b' -%}
+      {%- when 'bordeaux', 'burgundy' -%}{%- assign css_color = '#7f1d1d' -%}
+    {%- endcase -%}
+
+    <button
+      @click="selectOption('{{ option.name }}', '{{ value }}')"
+      :class="{
+        'ring-2 ring-offset-2 ring-accent': selectedOptions['{{ option.name }}'] === '{{ value }}',
+        'opacity-40 cursor-not-allowed': !isOptionAvailable('{{ option.name }}', '{{ value }}')
+      }"
+      :disabled="!isOptionAvailable('{{ option.name }}', '{{ value }}')"
+      class="relative w-9 h-9 rounded-full border-2 border-border transition-all focus-ring"
+      title="{{ value }}"
+      :aria-label="'{{ value }}' + (selectedOptions['{{ option.name }}'] === '{{ value }}' ? ' (sélectionné)' : '')"
+      :aria-pressed="selectedOptions['{{ option.name }}'] === '{{ value }}'"
+      {%- if css_color != '' -%}
+        style="background-color: {{ css_color }}; {% if swatch_color == 'blanc' or swatch_color == 'white' %}border-color: #d1d5db;{% endif %}"
+      {%- else -%}
+        style="background-color: {{ value | downcase }};"
+      {%- endif -%}
+    >
+      {%- comment -%}
+        Strikethrough line for unavailable swatches
+      {%- endcomment -%}
+      <span
+        class="absolute inset-0 flex items-center justify-center pointer-events-none"
+        x-show="!isOptionAvailable('{{ option.name }}', '{{ value }}')"
+        x-cloak
+      >
+        <svg class="w-full h-full text-text/30 stroke-current" viewBox="0 0 36 36" aria-hidden="true">
+          <line x1="6" y1="30" x2="30" y2="6" stroke-width="1.5" />
+        </svg>
+      </span>
+    </button>
+  {%- endfor -%}
+</div>

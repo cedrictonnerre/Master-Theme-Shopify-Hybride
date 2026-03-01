@@ -1,0 +1,22 @@
+{
+  "name": "master-theme-shopify",
+  "version": "1.0.0",
+  "description": "Master Theme Shopify Hybride — Landing Page / Catalogue",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@alpinejs/intersect": "^3.14.8",
+    "alpinejs": "^3.14.8"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "vite": "^5.4.0",
+    "vite-plugin-shopify": "^4.2.0"
+  }
+}

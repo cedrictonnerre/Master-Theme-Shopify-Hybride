@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <title>
+    {{ page_title }}
+    {%- if current_tags %} &ndash; {{ current_tags | join: ', ' }}{%- endif -%}
+    {%- if current_page != 1 %} &ndash; Page {{ current_page }}{%- endif -%}
+    {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{%- endunless -%}
+  </title>
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+  <link rel="canonical" href="{{ canonical_url }}">
+
+  <!-- Favicon -->
+  {%- if settings.favicon != blank -%}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+  {%- endif -%}
+
+  <!-- Performance: DNS prefetch -->
+  <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+  <!-- Design Tokens — CSS Custom Properties from settings_schema -->
+  {%- render 'css-variables' -%}
+
+  <!-- Shopify required (apps, analytics, etc.) -->
+  {{ content_for_header }}
+
+  <!-- CSS + JS : vite-tag gère dev (HMR via Vite) et prod (assets hachés sur CDN) -->
+  {%- render 'vite-tag', with: 'main.js' -%}
+
+  <!-- x-cloak: hides Alpine elements before initialization -->
+  <style>[x-cloak] { display: none !important; }</style>
+
+  <!-- Shopify currency object for JS access -->
+  <script>
+    window.Shopify = window.Shopify || {};
+    window.Shopify.currency = {
+      active: {{ cart.currency.iso_code | json }},
+      rate: "1.0"
+    };
+    window.theme = {
+      shopMode: {{ settings.shop_mode | json }},
+      moneyFormat: {{ shop.money_format | json }},
+      routes: {
+        root: "{{ routes.root_url }}",
+        cart: "{{ routes.cart_url }}",
+        cartAdd: "{{ routes.cart_add_url }}",
+        cartChange: "{{ routes.cart_change_url }}"
+      }
+    };
+  </script>
+</head>
+
+<body
+  class="bg-background text-text antialiased"
+  data-shop-mode="{{ settings.shop_mode }}"
+  x-data
+  x-init="$store.cart.init()"
+>
+  <!-- Skip to content (accessibility) -->
+  <a
+    class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 bg-accent text-white px-4 py-2 rounded-theme z-[100] font-medium text-sm"
+    href="#MainContent"
+  >
+    {{- 'accessibility.skip_to_content' | t -}}
+  </a>
+
+  <!-- Announcement bar -->
+  {%- section 'announcement-bar' -%}
+
+  <!-- Main header -->
+  {%- section 'header' -%}
+
+  <!-- Cart Drawer (rendered once, controlled via Alpine store) -->
+  {%- section 'cart-drawer' -%}
+
+  <!-- Main content -->
+  <main id="MainContent" class="min-h-screen" tabindex="-1">
+    {{ content_for_layout }}
+  </main>
+
+  <!-- Sticky Add to Cart (mobile only, product pages) -->
+  {%- if request.page_type == 'product' -%}
+    {%- section 'sticky-atc' -%}
+  {%- endif -%}
+
+  <!-- Footer -->
+  {%- section 'footer' -%}
+
+  <!-- Shopify scripts (analytics, apps) -->
+  {{ content_for_footer }}
+</body>
+</html>

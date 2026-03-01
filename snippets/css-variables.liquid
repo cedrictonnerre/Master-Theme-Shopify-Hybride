@@ -1,0 +1,65 @@
+{% comment %}
+  css-variables.liquid
+  Bridge between Shopify settings_schema and CSS custom properties.
+  Rendered in <head> before stylesheets for zero-FOUC on design tokens.
+{% endcomment %}
+<style>
+  :root {
+    /* ─── Colours ─────────────────────────────────────────────────────── */
+    --color-background:           {{ settings.color_background }};
+    --color-background-secondary: {{ settings.color_background_secondary }};
+    --color-text:                 {{ settings.color_text }};
+    --color-text-light:           {{ settings.color_text_light }};
+    --color-accent:               {{ settings.color_accent }};
+    --color-accent-hover:         {{ settings.color_accent_hover }};
+    --color-border:               {{ settings.color_border }};
+
+    /* ─── Typography ──────────────────────────────────────────────────── */
+    --font-heading:        {{ settings.font_heading.family }}, {{ settings.font_heading.fallback_families }};
+    --font-heading-weight: {{ settings.font_heading.weight }};
+    --font-heading-style:  {{ settings.font_heading.style }};
+    --font-body:           {{ settings.font_body.family }}, {{ settings.font_body.fallback_families }};
+    --font-body-weight:    {{ settings.font_body.weight }};
+    --font-body-style:     {{ settings.font_body.style }};
+    --font-size-base:      {{ settings.font_size_base }}px;
+
+    /* ─── Layout ──────────────────────────────────────────────────────── */
+    --page-width:     {{ settings.page_width }};
+    --border-radius:  {{ settings.border_radius }}px;
+    --spacing-base:   {{ settings.spacing_base }}px;
+    --spacing-half:   calc(var(--spacing-base) / 2);
+    --spacing-2:      calc(var(--spacing-base) * 2);
+    --spacing-3:      calc(var(--spacing-base) * 3);
+
+    /* ─── Transitions ─────────────────────────────────────────────────── */
+    --transition-base: 0.2s ease-in-out;
+    --transition-slow: 0.4s ease-in-out;
+  }
+
+  /* ─── Font faces (loaded from Shopify CDN) ───────────────────────── */
+  {{ settings.font_heading | font_face: font_display: 'swap' }}
+  {{ settings.font_body | font_face: font_display: 'swap' }}
+
+  /* ─── Base typography from tokens ───────────────────────────────── */
+  body {
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-body-weight);
+    font-style: var(--font-body-style);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-style: var(--font-heading-style);
+  }
+
+  {% unless settings.enable_animations %}
+    /* Animations disabled by merchant setting */
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  {% endunless %}
+</style>

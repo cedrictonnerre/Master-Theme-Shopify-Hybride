@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "settings": {
+        "text": "🚚 Livraison offerte dès 50€ — Retours gratuits 30 jours",
+        "show_dismiss": false
+      }
+    },
+    "hero-landing": {
+      "type": "hero-landing",
+      "settings": {
+        "heading": "Votre produit unique",
+        "subheading": "Découvrez ce qui vous rend unique. Qualité premium, livraison rapide.",
+        "button_primary_label": "Acheter maintenant",
+        "full_height": true,
+        "content_alignment": "left",
+        "show_trust_badges": true,
+        "badge_1_text": "Paiement sécurisé",
+        "badge_2_text": "Livraison offerte dès 50€",
+        "badge_3_text": "Retours gratuits 30 jours"
+      }
+    }
+  },
+  "order": ["announcement-bar", "hero-landing"]
+}

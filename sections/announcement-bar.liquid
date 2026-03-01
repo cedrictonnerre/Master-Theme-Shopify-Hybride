@@ -1,0 +1,43 @@
+{%- if section.settings.text != blank -%}
+  <div
+    class="bg-accent text-white text-center py-2 px-4 text-xs md:text-sm font-medium"
+    x-data="{ visible: true }"
+    x-show="visible"
+  >
+    <div class="max-w-page mx-auto flex items-center justify-center gap-4 relative">
+      <p>{{ section.settings.text }}</p>
+
+      {%- if section.settings.show_dismiss -%}
+        <button
+          @click="visible = false"
+          class="absolute right-0 opacity-70 hover:opacity-100 transition-opacity"
+          aria-label="{{ 'general.close' | t }}"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barre d'annonce",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Message",
+      "default": "🚚 Livraison offerte dès 50€ d'achat"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dismiss",
+      "label": "Bouton fermeture",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

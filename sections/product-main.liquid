@@ -1,0 +1,257 @@
+{% comment %}
+  product-main.liquid
+  Core product page section with variant picker, swatches, quantity selector,
+  and ATC. Uses Alpine variantPicker component registered in main.js.
+{% endcomment %}
+
+{%- assign product = product -%}
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign product_json = product | json -%}
+
+<section
+  class="section-padding"
+  x-data="variantPicker({{ product_json }})"
+>
+  <div class="section-container">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+
+      <!-- ── Product Gallery ─────────────────────────────────────────── -->
+      <div class="lg:sticky lg:top-24">
+        <div
+          class="aspect-product rounded-theme overflow-hidden bg-background-secondary"
+          x-data="{ activeImage: '{{ current_variant.featured_image | default: product.featured_image | img_url: '1200x' }}' }"
+        >
+          <!-- Main image -->
+          <img
+            :src="activeImage"
+            :alt="'{{ product.title | escape }}'"
+            class="w-full h-full object-cover"
+            fetchpriority="high"
+            loading="eager"
+            width="1200"
+            height="1600"
+            id="product-featured-image"
+          >
+        </div>
+
+        <!-- Thumbnails (if > 1 image) -->
+        {%- if product.images.size > 1 -%}
+          <div class="flex gap-3 mt-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+            {%- for image in product.images -%}
+              <button
+                class="flex-shrink-0 w-20 h-20 rounded-theme overflow-hidden border-2 transition-colors snap-start
+                       {% if forloop.first %}border-accent{% else %}border-border hover:border-accent{% endif %}"
+                @click="activeImage = '{{ image | img_url: '600x' }}'"
+                :class="activeImage === '{{ image | img_url: '600x' }}' && 'border-accent'"
+                aria-label="Image {{ forloop.index }}"
+              >
+                <img
+                  src="{{ image | img_url: '160x' }}"
+                  alt="{{ image.alt | escape }}"
+                  class="w-full h-full object-cover"
+                  loading="lazy"
+                  width="80"
+                  height="80"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      <!-- ── Product Info ─────────────────────────────────────────────── -->
+      <div class="flex flex-col gap-6">
+
+        <!-- Vendor -->
+        {%- if section.settings.show_vendor and product.vendor != blank -%}
+          <p class="text-text-light text-xs uppercase tracking-widest font-semibold">{{ product.vendor }}</p>
+        {%- endif -%}
+
+        <!-- Title -->
+        <h1 class="font-heading text-3xl md:text-4xl font-bold leading-tight">
+          {{ product.title }}
+        </h1>
+
+        <!-- Price block -->
+        {%- render 'product-price', variant: current_variant -%}
+        <div x-show="selectedVariant" x-cloak>
+          <p
+            class="font-semibold text-2xl text-accent"
+            x-text="price"
+          ></p>
+          <p
+            x-show="comparePrice"
+            x-cloak
+            class="text-text-light line-through text-sm mt-0.5"
+            x-text="comparePrice"
+          ></p>
+          <span
+            x-show="savingsPercent"
+            x-cloak
+            class="inline-block mt-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full"
+            x-text="`-${savingsPercent}%`"
+          ></span>
+        </div>
+
+        <!-- Short description / selling proposition -->
+        {%- if product.description != blank -%}
+          <div class="text-text-light text-sm leading-relaxed border-t border-border pt-4">
+            {{ product.description | truncatewords: 30, '...' }}
+          </div>
+        {%- endif -%}
+
+        <!-- Variant selectors -->
+        {%- if product.has_only_default_variant == false -%}
+          <div class="space-y-4">
+            {%- for option in product.options_with_values -%}
+              {%- assign option_name = option.name | downcase -%}
+
+              <div>
+                <label class="block text-sm font-medium mb-2">
+                  {{ option.name }}
+                  {%- if option_name == 'couleur' or option_name == 'color' -%}
+                    : <span class="font-semibold" x-text="selectedOptions['{{ option.name }}']">{{ option.selected_value }}</span>
+                  {%- endif -%}
+                </label>
+
+                {%- if option_name == 'couleur' or option_name == 'color' -%}
+                  {%- render 'swatches', option: option, product: product -%}
+                {%- else -%}
+                  <!-- Size / other options: pill buttons -->
+                  <div class="flex flex-wrap gap-2" role="group" :aria-label="'{{ option.name }}'">
+                    {%- for value in option.values -%}
+                      <button
+                        @click="selectOption('{{ option.name }}', '{{ value }}')"
+                        :class="{
+                          'border-accent bg-accent text-white': selectedOptions['{{ option.name }}'] === '{{ value }}',
+                          'border-border hover:border-accent': selectedOptions['{{ option.name }}'] !== '{{ value }}',
+                          'opacity-40 line-through cursor-not-allowed': !isOptionAvailable('{{ option.name }}', '{{ value }}')
+                        }"
+                        :disabled="!isOptionAvailable('{{ option.name }}', '{{ value }}')"
+                        class="px-4 py-2 border-2 rounded-theme text-sm font-medium transition-all focus-ring"
+                      >
+                        {{ value }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        <!-- Quantity selector -->
+        {%- if section.settings.show_quantity_selector -%}
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ 'products.product.quantity' | t }}</label>
+            <div class="inline-flex items-center border border-border rounded-theme overflow-hidden">
+              <button
+                @click="decreaseQty()"
+                class="w-11 h-11 flex items-center justify-center hover:bg-background-secondary transition-colors text-lg"
+                aria-label="{{ 'cart.general.quantity_decrease' | t }}"
+              >−</button>
+              <span
+                class="w-12 text-center text-sm font-semibold tabular-nums"
+                x-text="quantity"
+                aria-live="polite"
+              >1</span>
+              <button
+                @click="increaseQty()"
+                class="w-11 h-11 flex items-center justify-center hover:bg-background-secondary transition-colors text-lg"
+                aria-label="{{ 'cart.general.quantity_increase' | t }}"
+              >+</button>
+            </div>
+          </div>
+        {%- endif -%}
+
+        <!-- Add to Cart button (main — observed by Sticky ATC) -->
+        <button
+          id="main-atc-btn"
+          @click="addToCart()"
+          :disabled="!available || loading"
+          class="btn-primary w-full py-5 text-base flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span x-show="!loading">
+            <span x-show="available">{{ 'products.product.add_to_cart' | t }}</span>
+            <span x-show="!available" x-cloak>{{ 'products.product.sold_out' | t }}</span>
+          </span>
+          <span x-show="loading" x-cloak class="flex items-center gap-2">
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 3 12 12h4z"></path>
+            </svg>
+            <span>{{ 'general.loading' | t }}</span>
+          </span>
+        </button>
+
+        <!-- Trust mini-badges (below ATC) -->
+        <div class="flex flex-wrap gap-4 text-xs text-text-light border-t border-border pt-4">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            Paiement sécurisé
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            Retours 30 jours
+          </span>
+        </div>
+
+        <!-- Full product description (accordion) -->
+        {%- if product.description != blank -%}
+          <div x-data="accordion()" class="border-t border-border pt-4">
+            <button
+              @click="toggle('description')"
+              class="w-full flex items-center justify-between py-3 font-medium text-sm hover:text-accent transition-colors focus-ring rounded"
+              :aria-expanded="isOpen('description')"
+            >
+              <span>Description complète</span>
+              <svg
+                class="w-5 h-5 transition-transform duration-200"
+                :class="isOpen('description') && 'rotate-180'"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              x-show="isOpen('description')"
+              x-cloak
+              x-collapse
+              class="prose prose-sm max-w-none text-text-light pb-4"
+            >
+              {{ product.description }}
+            </div>
+          </div>
+        {%- endif -%}
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Produit — Principal",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Afficher la marque",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity_selector",
+      "label": "Afficher le sélecteur de quantité",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "Afficher les boutons de partage",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

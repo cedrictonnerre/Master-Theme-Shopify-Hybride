@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "contact": {
+      "type": "contact-form",
+      "settings": {
+        "heading": "Contactez-nous",
+        "subheading": "Pour un suivi de commande, merci de renseigner votre numéro de commande."
+      }
+    }
+  },
+  "order": ["contact"]
+}

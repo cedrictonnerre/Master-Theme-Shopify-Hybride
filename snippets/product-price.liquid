@@ -1,0 +1,38 @@
+{% comment %}
+  product-price.liquid
+  Renders price, compare-at price, and savings badge for a variant.
+  Used as a server-side rendered fallback before Alpine hydrates.
+
+  Parameters:
+  - variant: the product variant object
+{% endcomment %}
+
+{%- if variant != blank -%}
+  <div class="flex items-baseline gap-3 flex-wrap" aria-label="Prix">
+
+    {%- if variant.compare_at_price > variant.price -%}
+      {%- assign savings = variant.compare_at_price | minus: variant.price -%}
+      {%- assign savings_pct = savings | times: 100 | divided_by: variant.compare_at_price | round -%}
+
+      <span class="font-semibold text-2xl text-accent">
+        {{ variant.price | money }}
+      </span>
+      <span class="text-text-light line-through text-base">
+        {{ variant.compare_at_price | money }}
+      </span>
+      <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+        -{{ savings_pct }}%
+      </span>
+
+    {%- else -%}
+      <span class="font-semibold text-2xl text-text">
+        {{ variant.price | money }}
+      </span>
+    {%- endif -%}
+
+    {%- if variant.available == false -%}
+      <span class="text-text-light text-sm">— {{ 'products.product.sold_out' | t }}</span>
+    {%- endif -%}
+
+  </div>
+{%- endif -%}

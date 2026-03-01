@@ -1,0 +1,166 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Master Theme Hybride",
+    "theme_version": "1.0.0",
+    "theme_author": "Claude Code",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Mode Boutique",
+    "settings": [
+      {
+        "type": "select",
+        "id": "shop_mode",
+        "label": "Mode d'affichage",
+        "info": "Choisissez entre une page de vente unique (Landing Page) ou un catalogue multi-produits",
+        "options": [
+          { "value": "landing", "label": "Landing Page (Mono-produit)" },
+          { "value": "catalogue", "label": "Catalogue (Multi-produits)" }
+        ],
+        "default": "landing"
+      }
+    ]
+  },
+  {
+    "name": "Couleurs",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Couleur de fond principale",
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "color_background_secondary",
+        "label": "Couleur de fond secondaire",
+        "default": "#f8f7f4"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Couleur du texte",
+        "default": "#1a1a1a"
+      },
+      {
+        "type": "color",
+        "id": "color_text_light",
+        "label": "Couleur du texte secondaire",
+        "default": "#6b7280"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Couleur principale (CTA, boutons)",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_hover",
+        "label": "Couleur survol (CTA, boutons)",
+        "default": "#1a1a1a"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Couleur des bordures",
+        "default": "#e5e7eb"
+      }
+    ]
+  },
+  {
+    "name": "Typographie",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Police des titres",
+        "default": "inter_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Police du corps de texte",
+        "default": "inter_n4"
+      },
+      {
+        "type": "range",
+        "id": "font_size_base",
+        "label": "Taille de police de base",
+        "min": 14,
+        "max": 18,
+        "step": 1,
+        "unit": "px",
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": "Mise en page",
+    "settings": [
+      {
+        "type": "select",
+        "id": "page_width",
+        "label": "Largeur maximale du contenu",
+        "options": [
+          { "value": "1200px", "label": "Compact — 1200px" },
+          { "value": "1400px", "label": "Standard — 1400px" },
+          { "value": "1600px", "label": "Large — 1600px" }
+        ],
+        "default": "1400px"
+      },
+      {
+        "type": "range",
+        "id": "border_radius",
+        "label": "Arrondi des coins (boutons, cartes)",
+        "min": 0,
+        "max": 20,
+        "step": 2,
+        "unit": "px",
+        "default": 8
+      },
+      {
+        "type": "range",
+        "id": "spacing_base",
+        "label": "Espacement de base",
+        "min": 8,
+        "max": 24,
+        "step": 2,
+        "unit": "px",
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": "Favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Format .ico ou .png recommandé, 32x32px"
+      }
+    ]
+  },
+  {
+    "name": "Performance & Accessibilité",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "lazy_load_images",
+        "label": "Chargement différé des images",
+        "info": "Améliore le PageSpeed en ne chargeant les images qu'à la demande",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_animations",
+        "label": "Activer les animations de transition",
+        "info": "Désactivez pour les utilisateurs sensibles aux mouvements (prefers-reduced-motion)",
+        "default": true
+      }
+    ]
+  }
+]

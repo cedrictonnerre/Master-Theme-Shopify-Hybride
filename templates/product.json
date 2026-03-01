@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "product-main": {
+      "type": "product-main",
+      "settings": {
+        "show_vendor": false,
+        "show_quantity_selector": true,
+        "show_share_buttons": false
+      }
+    }
+  },
+  "order": ["product-main"]
+}

@@ -1,0 +1,46 @@
+{
+  "general": {
+    "password_page": {
+      "login_form_heading": "Enter store using password",
+      "login_form_password_label": "Password",
+      "login_form_password_placeholder": "Your password",
+      "login_form_submit": "Enter",
+      "signup_form_email_label": "Email",
+      "signup_form_submit": "Notify me",
+      "signup_form_success": "Thank you! We'll notify you when the store is ready."
+    },
+    "close": "Close",
+    "loading": "Loading..."
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "quantity": "Quantity",
+      "quantity_minimum_message": "Minimum quantity: {{ minimum }}"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Your cart",
+      "empty": "Your cart is currently empty.",
+      "checkout": "Check out",
+      "subtotal": "Subtotal",
+      "shipping_at_checkout": "Taxes and shipping calculated at checkout.",
+      "continue_shopping": "Continue shopping",
+      "view_cart": "View full cart",
+      "remove": "Remove",
+      "quantity_decrease": "Decrease quantity",
+      "quantity_increase": "Increase quantity"
+    }
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "close_menu": "Close menu",
+    "open_menu": "Open menu",
+    "close_cart": "Close cart",
+    "open_cart": "Open cart",
+    "my_account": "My account"
+  }
+}

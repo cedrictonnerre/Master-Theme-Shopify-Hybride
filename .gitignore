@@ -1,0 +1,24 @@
+# Dépendances
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Variables d'environnement — NE JAMAIS COMMITTER
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+
+# Shopify — vite-tag.liquid est auto-généré par vite-plugin-shopify.
+# Ne pas committer la version dev (contient l'URL localhost).
+# Committer uniquement après `npm run build` (contient les chemins prod hachés).
+snippets/vite-tag.liquid
+
+# .claude/ est INCLUS intentionnellement (config Claude Code partagée avec l'équipe)

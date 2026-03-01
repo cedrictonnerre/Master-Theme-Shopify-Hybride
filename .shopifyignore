@@ -1,0 +1,13 @@
+node_modules/
+frontend/
+.git/
+*.config.js
+*.config.ts
+package.json
+package-lock.json
+yarn.lock
+.gitignore
+.shopifyignore
+README.md
+CLAUDE.md
+PRD.md
