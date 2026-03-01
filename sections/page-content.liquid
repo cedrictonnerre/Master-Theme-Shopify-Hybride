@@ -1,0 +1,15 @@
+{% comment %} page-content.liquid — Phase 1.3 {% endcomment %}
+<div class="section-container section-padding">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="font-heading text-3xl font-bold text-text mb-6">{{ page.title }}</h1>
+    <div class="prose text-text-light">{{ page.content }}</div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contenu de page",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

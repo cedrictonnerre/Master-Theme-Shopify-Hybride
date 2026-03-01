@@ -2,7 +2,11 @@
   assign hero_image = section.settings.hero_image
   assign hero_image_mobile = section.settings.hero_image_mobile | default: hero_image
   assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
-  assign has_image = hero_image != blank
+  if hero_image != blank
+    assign has_image = true
+  else
+    assign has_image = false
+  endif
   assign on_dark = has_image | default: false
   if section.settings.show_overlay == false
     assign on_dark = false

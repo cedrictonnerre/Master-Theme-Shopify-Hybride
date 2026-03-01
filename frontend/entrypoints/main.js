@@ -240,6 +240,41 @@ Alpine.data('accordion', () => ({
   },
 }));
 
+// ─── Alpine component: Sticky ATC ─────────────────────────────────────────────
+// Observes #main-atc-btn via IntersectionObserver. Shows the sticky bar
+// when the main button scrolls out of view on product pages.
+Alpine.data('stickyAtc', () => ({
+  visible: false,
+  variant: null,
+
+  init() {
+    const sentinel = document.getElementById('main-atc-btn');
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        this.visible = !entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+
+    // Keep variant in sync with the variant picker
+    document.addEventListener('variant:change', (e) => {
+      this.variant = e.detail.variant;
+    });
+  },
+
+  get available() {
+    return this.variant ? this.variant.available : true;
+  },
+
+  async addToCart() {
+    if (!this.available || !this.variant) return;
+    await Alpine.store('cart').add(this.variant.id, 1);
+  },
+}));
+
 // ─── Start Alpine ─────────────────────────────────────────────────────────────
 // Must be called after all stores and components are registered.
 window.Alpine = Alpine;

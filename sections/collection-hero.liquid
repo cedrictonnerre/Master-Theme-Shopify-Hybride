@@ -1,0 +1,15 @@
+{% comment %} collection-hero.liquid — Phase 1.2 {% endcomment %}
+<div class="section-container py-10">
+  <h1 class="font-heading text-3xl font-bold text-text">{{ collection.title }}</h1>
+  {%- if collection.description != blank -%}
+    <p class="text-text-light mt-2">{{ collection.description }}</p>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Hero Collection",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

@@ -100,7 +100,7 @@
 
   /* Product card base */
   .product-card {
-    @apply group relative flex flex-col overflow-hidden rounded-theme bg-background-secondary;
+    @apply relative flex flex-col overflow-hidden rounded-theme bg-background-secondary;
   }
 
   /* Loading spinner */

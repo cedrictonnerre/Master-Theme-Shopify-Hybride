@@ -1,0 +1,26 @@
+{% comment %} collection-grid.liquid — Phase 1.2 {% endcomment %}
+<div class="section-container section-padding">
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    {%- for product in collection.products -%}
+      <a href="{{ product.url }}" class="product-card p-4">
+        <div class="aspect-product bg-background-secondary rounded-theme mb-3">
+          {%- if product.featured_image -%}
+            <img src="{{ product.featured_image | image_url: width: 400 }}" alt="{{ product.title | escape }}" class="w-full h-full object-cover rounded-theme" loading="lazy">
+          {%- endif -%}
+        </div>
+        <p class="font-medium text-text text-sm">{{ product.title }}</p>
+        <p class="text-text-light text-sm">{{ product.price | money }}</p>
+      </a>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Grille Collection",
+  "tag": "section",
+  "settings": [
+    { "type": "range", "id": "products_per_page", "label": "Produits par page", "min": 6, "max": 24, "step": 6, "default": 12 }
+  ]
+}
+{% endschema %}

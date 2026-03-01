@@ -1,0 +1,25 @@
+{% comment %} contact-form.liquid — Phase 1.3 {% endcomment %}
+<div class="section-container section-padding">
+  <div class="max-w-xl mx-auto">
+    <h1 class="font-heading text-3xl font-bold text-text mb-8">Contact</h1>
+    {%- form 'contact' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="text-accent mb-4">Message envoyé.</p>
+      {%- endif -%}
+      <div class="space-y-4">
+        <input type="text" name="contact[name]" placeholder="Nom" class="form-input">
+        <input type="email" name="contact[email]" placeholder="Email" required class="form-input">
+        <textarea name="contact[body]" rows="5" placeholder="Votre message" class="form-input"></textarea>
+        <button type="submit" class="btn-primary w-full">Envoyer</button>
+      </div>
+    {%- endform -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Formulaire de contact",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

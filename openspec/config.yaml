@@ -112,7 +112,7 @@ rules:
     - Mobile-first obligatoire — décrire d'abord le comportement mobile
     - Indiquer les classes Tailwind utilisées (bg-accent, text-text-light, rounded-theme, etc.)
   tasks:
-    - Décomposer par fichier touché (ex : "Créer sections/faq.liquid", "Mettre à jour templates/page.faq.json")
+    - 'Décomposer par fichier touché (ex : "Créer sections/faq.liquid", "Mettre à jour templates/page.faq.json")'
     - Chaque tâche doit être testable indépendamment
     - Indiquer les dépendances entre tâches (Alpine store, snippets partagés)
     - Limiter chaque tâche à une portée claire et délimitée
